@@ -20,7 +20,7 @@ class CommentRepository extends ServiceEntityRepository
         parent::__construct($registry, Comment::class);
     }
 
-    public function findLastCommentsGroupedByPost()
+    public function findLastCommentsGroupedByPost(Post $post = null)
     {
         $expr = $this->getEntityManager()->getExpressionBuilder();
 
@@ -28,14 +28,22 @@ class CommentRepository extends ServiceEntityRepository
         $subQueryDQL = $this->createQueryBuilder('c2')
             ->select('max(c2.createdAt)')
             ->andWhere('c2.post = c.post')
+            ->andWhere('c2.published = 1')
             ->getDQL()
         ;
 
-        return $this->createQueryBuilder('c')
+        $qb = $this->createQueryBuilder('c')
             ->andWhere($expr->eq('c.createdAt', sprintf('(%s)', $subQueryDQL)))
-            ->getQuery()
-            ->getResult()
         ;
+
+        if ($post) {
+            $qb
+                ->andWhere('c.post = :post')
+                ->setParameter('post', $post)
+            ;
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     // /**

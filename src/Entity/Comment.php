@@ -32,6 +32,11 @@ class Comment implements \JsonSerializable
      */
     private $createdAt;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $published;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -73,6 +78,18 @@ class Comment implements \JsonSerializable
         return $this;
     }
 
+    public function getPublished(): ?bool
+    {
+        return $this->published;
+    }
+
+    public function setPublished(?bool $published): self
+    {
+        $this->published = $published;
+
+        return $this;
+    }
+
     /**
      * @see \JsonSerializable
      */
@@ -83,6 +100,7 @@ class Comment implements \JsonSerializable
             'post_id' => $this->getPost()->getId(),
             'content' => $this->getContent(),
             'created_at' => $this->getCreatedAt(),
+            'published' => $this->getPublished(),
         ];
     }
 }
