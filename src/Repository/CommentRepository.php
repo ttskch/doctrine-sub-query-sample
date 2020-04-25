@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Comment;
+use App\Entity\Post;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,6 +18,24 @@ class CommentRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Comment::class);
+    }
+
+    public function findLastCommentsGroupedByPost()
+    {
+        $expr = $this->getEntityManager()->getExpressionBuilder();
+
+        // sub query to select comments have latest createdAt
+        $subQueryDQL = $this->createQueryBuilder('c2')
+            ->select('max(c2.createdAt)')
+            ->andWhere('c2.post = c.post')
+            ->getDQL()
+        ;
+
+        return $this->createQueryBuilder('c')
+            ->andWhere($expr->eq('c.createdAt', sprintf('(%s)', $subQueryDQL)))
+            ->getQuery()
+            ->getResult()
+        ;
     }
 
     // /**

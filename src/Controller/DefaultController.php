@@ -16,7 +16,7 @@ class DefaultController extends AbstractController
      */
     public function index(CommentRepository $commentRepository)
     {
-        $comments = $commentRepository->findAll();
+        $comments = $commentRepository->findLastCommentsGroupedByPost();
 
         return new JsonResponse($comments);
     }
